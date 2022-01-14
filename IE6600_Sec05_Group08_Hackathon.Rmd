@@ -1,0 +1,669 @@
+---
+title: "IE6600_Sec06_Group08_Hackathon"
+author: "Aneesha Subramanian, Ankita Ajit Doddihal, Rajaragunanthan Palanisamy"
+date: "10/7/2021"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+# Unwanted warning and other messages have been set to FALSE
+```
+
+#Loading the libraries
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(naniar)
+library(ggplot2)
+library(maps)
+library(ggalluvial)
+library(usmap)
+
+```
+
+#Loading the Data Frame
+
+```{r}
+mental_health <- read.csv("mental-heath-in-tech-2016_20161114.csv")
+file.info("mental-heath-in-tech-2016_20161114.csv")$size
+summary(mental_health$What.is.your.age.)
+```
+
+#checking for mislabeled variables, renaming column names - Data Cleaning
+
+```{r}
+#checking for mislabeled variables, 
+names(mental_health)
+mental_health <- mental_health %>% rename(self_employed = Are.you.self.employed.)
+mental_health <- mental_health %>% rename(company_size = How.many.employees.does.your.company.or.organization.have.)
+mental_health <- mental_health %>% rename(Tech_company = Is.your.employer.primarily.a.tech.company.organization.)
+mental_health <- mental_health %>% rename(Tech_related_role = Is.your.primary.role.within.your.company.related.to.tech.IT.)
+mental_health <- mental_health %>% rename(mental_health_benefits_by_employer_aspart_of_coverage = Does.your.employer.provide.mental.health.benefits.as.part.of.healthcare.coverage.)
+mental_health <- mental_health %>% rename(do_you_know_mentalhealth_options_available_in_the_coverage = Do.you.know.the.options.for.mental.health.care.available.under.your.employer.provided.coverage.)
+mental_health <- mental_health %>% rename(formal_discusssion_of_mentalheath_by_employer = Has.your.employer.ever.formally.discussed.mental.health..for.example..as.part.of.a.wellness.campaign.or.other.official.communication..)
+mental_health <- mental_health %>% rename(employer_provides_additional_resources_for_mental_health = Does.your.employer.offer.resources.to.learn.more.about.mental.health.concerns.and.options.for.seeking.help.)
+mental_health <- mental_health %>% rename(anonymity_protected_if_seeking_help = Is.your.anonymity.protected.if.you.choose.to.take.advantage.of.mental.health.or.substance.abuse.treatment.resources.provided.by.your.employer.)
+mental_health <- mental_health %>% rename(discussing_mental_disorder_with_employer_have_negetive_consequences= Do.you.think.that.discussing.a.mental.health.disorder.with.your.employer.would.have.negative.consequences.)
+mental_health <- mental_health %>% rename(discussing_physical_health_disorder_with_employer_have_negetive_consequences= Do.you.think.that.discussing.a.physical.health.issue.with.your.employer.would.have.negative.consequences.)
+mental_health <- mental_health %>% rename(comfortable_sharing_mental_health_disorder_with_coworkers = Would.you.feel.comfortable.discussing.a.mental.health.disorder.with.your.coworkers.)
+mental_health <- mental_health %>% rename(comfortable_sharing_mental_health_disorder_with_supervisors = Would.you.feel.comfortable.discussing.a.mental.health.disorder.with.your.direct.supervisor.s..)
+mental_health <- mental_health %>% rename(does_employer_take_mental_health_as_seriously_as_physical_health = Do.you.feel.that.your.employer.takes.mental.health.as.seriously.as.physical.health.)
+mental_health <- mental_health %>% rename(observed_negetive_cosequences_when_people_spoke_about_mental_illness = Have.you.heard.of.or.observed.negative.consequences.for.co.workers.who.have.been.open.about.mental.health.issues.in.your.workplace.)
+mental_health <- mental_health %>% rename(have_private_or_state_provided_insurance_covering_mental_health = Do.you.have.medical.coverage..private.insurance.or.state.provided..which.includes.treatment.of.Â.mental.health.issues.)
+mental_health <- mental_health %>% rename(awareness_of_local_or_online_resources_for_mental_health_help = Do.you.know.local.or.online.resources.to.seek.help.for.a.mental.health.disorder.)
+mental_health <- mental_health %>% rename(if_diagnosed_or_treated_for_mental_disorder_do_you_reveal_to_clients_or_business_contacts = If.you.have.been.diagnosed.or.treated.for.a.mental.health.disorder..do.you.ever.reveal.this.to.clients.or.business.contacts.)
+mental_health <- mental_health %>% rename(any_negetive_impact_if_revealed_mental_issue_to_clients_or_business_contatcts = If.you.have.revealed.a.mental.health.issue.to.a.client.or.business.contact..do.you.believe.this.has.impacted.you.negatively.)
+mental_health <- mental_health %>% rename(revealed_diagnosed_mental_health_disorder_to_coworkers_or_employees = If.you.have.been.diagnosed.or.treated.for.a.mental.health.disorder..do.you.ever.reveal.this.to.coworkers.or.employees.)
+
+mental_health <- mental_health %>% rename(productivity_affected_by_mental_issue = Do.you.believe.your.productivity.is.ever.affected.by.a.mental.health.issue.)
+mental_health <- mental_health %>% rename(how_much_percent_of_time_was_affected_while_performing_primary_or_secondary_tasks_due_to_mental_health = If.yes..what.percentage.of.your.work.time..time.performing.primary.or.secondary.job.functions..is.affected.by.a.mental.health.issue.)
+mental_health <- mental_health %>% rename(have_previous_employers = Do.you.have.previous.employers.)
+mental_health <- mental_health %>% rename(previous_employers_prvided_mental_healthcare = Have.your.previous.employers.provided.mental.health.benefits.)
+mental_health <- mental_health %>% rename(aware_of_mental_healthcare_options_under_previous_employer = Were.you.aware.of.the.options.for.mental.health.care.provided.by.your.previous.employers.)
+mental_health <- mental_health %>% rename(any_formal_communication_about_mental_health_by_previous_employer = Did.your.previous.employers.ever.formally.discuss.mental.health..as.part.of.a.wellness.campaign.or.other.official.communication..)
+mental_health <- mental_health %>% rename(any_resource_provided_by_previous_employer_for_knowledge_or_help = Did.your.previous.employers.provide.resources.to.learn.more.about.mental.health.issues.and.how.to.seek.help.)
+mental_health <- mental_health %>% rename(anonymity_protected_if_seeking_help_under_previous_employers = Was.your.anonymity.protected.if.you.chose.to.take.advantage.of.mental.health.or.substance.abuse.treatment.resources.with.previous.employers.)
+
+# In this code block, the columns with ambiguous names have been renamed for better understanding and use 
+
+```
+
+
+##Checking for faulty data types, string inconsistencies
+
+```{r}
+#Checking for faulty data types
+
+str(mental_health)
+
+typeof(mental_health$company_size)
+mental_health$company_size <- as.factor(mental_health$company_size)
+typeof(mental_health$how_much_percent_of_time_was_affected_while_performing_primary_or_secondary_tasks_due_to_mental_health)
+mental_health$how_much_percent_of_time_was_affected_while_performing_primary_or_secondary_tasks_due_to_mental_health <- as.factor(mental_health$how_much_percent_of_time_was_affected_while_performing_primary_or_secondary_tasks_due_to_mental_health)
+mental_health
+
+
+#Checking for string inconsistencies
+barplot(table(mental_health$What.is.your.gender.), main = "Gender Distribution", xlab = "Gender", ylab = "Count")
+mental_health$What.is.your.gender. <- str_to_lower(mental_health$What.is.your.gender., locale = "en")
+unique(mental_health$What.is.your.gender.)  #72 unique values
+#Converting all entries to 1s and 0s; 1s - female and 0s - male
+
+# This chunk is just used to get an overall picture of the data as to whether the column values, especially the categorical values, are consistent. It also prints a simple bar-graph that show the gender distribution in the dataset. 'company_size' is converted to factor to add levels.
+
+```
+
+#studying the data
+```{r}
+summary(mental_health$What.is.your.age.)
+hist(mental_health$What.is.your.age.)
+library(ggplot2)
+barplot(table(mental_health$What.is.your.gender.), main = "Gender Distribution", xlab = "Gender", ylab = "Count")
+mental_health$What.is.your.gender. <- str_to_lower(mental_health$What.is.your.gender., locale = "en")
+unique(mental_health$What.is.your.gender.)
+
+gender_distribution <- mental_health%>%
+  group_by(What.is.your.gender.)%>%
+  summarise(count_gender = n())
+gender_distribution
+
+# The above code is used to obtain the summary of the data for studying. Also, a histogram is created to visualize the distribution of age in the data.
+
+```
+##On studying the data, we see that there are a few unusual values in the Age variable, i.e the maximum age being 323. To get a better picture of the data, we have filtered for ages greater than 16 and lesser than 70.
+
+```{r}
+mental_health_1 <- mental_health[!(mental_health$What.is.your.age. > 70 | mental_health$What.is.your.age. <16), ]
+summary(mental_health_1$What.is.your.age.)
+hist(mental_health_1$What.is.your.age.)
+
+# Age is filtered for including values only between 16 and 70. Distribution can be seen in the below histogram
+
+```
+
+#Checking the dataframe for any missing values, changing blank cells to N/A
+```{r}
+#check for missing values
+
+  df1 <- mental_health_1 %>% filter( mental_health_1$self_employed == 1)
+  df1
+  unique(mental_health_1$self_employed)
+  
+#change blank cells to NA
+mental_health_1 <- mental_health_1 %>% 
+  na_if("")
+
+unique(mental_health_1$company_size)
+
+# The data is cleaned to convert the missing values to 'NA' using this code chunk. 
+
+```
+
+#Theme1 - Understanding the population and demographic who responded to this survey
+
+#Q1 - Are Mental health issues more prevalent in employed people v/s people who are self employed
+
+```{r}
+#self vs company
+
+mental_health_1$self_employed <- gsub("0" , "Employed in a Company", mental_health_1$self_employed)
+mental_health_1$self_employed <- gsub("1" , "Self-Employed", mental_health_1$self_employed)
+
+library(ggplot2)
+unique(mental_health_1$Do.you.currently.have.a.mental.health.disorder.)
+df1 <- mental_health_1 %>%
+  group_by(self_employed, Do.you.currently.have.a.mental.health.disorder.) %>%
+  summarise(count = n())
+
+#plot1 
+p1 <- ggplot(df1,aes(x = as.factor(self_employed), y = count, label = count, fill = Do.you.currently.have.a.mental.health.disorder.)) + 
+  geom_bar(stat = "identity") + 
+  geom_text(size = 3, position = position_stack(vjust = 0.5)) + 
+  scale_fill_manual(name="Response", values = c("Yes" = "Light Blue", "No" = "Darksalmon", "Maybe" = "Yellow")) +       ggtitle("Comparison of mental health issue prevalency in employed v/s self employed") + 
+  labs(y="Number of responses", x = "Employment status") + 
+  theme_light() 
+
+p1
+
+# In this code, column with employment type data and the column that has mental health data are aggregated to find the count of people responses for each group and visualized using a stacked bar chart. 
+
+```
+
+#Q2 - What is the distribution of gender in the survey. Is there any impact of gender on mental health issues in technology?
+
+```{r}
+#plot2
+#TOTAL NUMBER OF MALE AND FEMALE
+df2 <- mental_health_1 %>%
+  group_by(What.is.your.gender.) %>%
+  summarise(count1 = n())
+df2
+df2$ymax=cumsum(df2$count1/100)
+df2$ymin=c(0,head(df2$ymax,n=-1))
+df2$labelPosition <- (df2$ymax + df2$ymin) / 2
+ggplot(df2, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=What.is.your.gender.)) +
+     geom_rect() +
+     coord_polar(theta="y") + 
+     xlim(c(2, 4))    +
+  theme_void() + 
+  geom_label( x=3.5, aes(y=labelPosition, label=count1), size=3) + scale_fill_manual(name = "Response", values = c("female" = "Light Blue", "male" = "Darksalmon", "other" = "Yellow")) +ggtitle("Gender distribution in the survey")
+
+#WOMEN only
+df2women <- mental_health_1 %>%
+  filter(What.is.your.gender.=="female")%>%
+  group_by(Do.you.currently.have.a.mental.health.disorder.) %>%
+  summarise(count1 = n())
+
+df2women$ymax=cumsum(df2women$count1/100)
+df2women$ymin=c(0,head(df2women$ymax,n=-1))
+df2women$labelPosition <- (df2women$ymax + df2women$ymin) / 2
+pwomen<- ggplot(df2women, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Do.you.currently.have.a.mental.health.disorder.)) +
+     geom_rect() +
+     coord_polar(theta="y") + 
+     xlim(c(2, 4))    +
+  theme_void() + 
+  geom_label( x=3.5, aes(y=labelPosition, label=count1), size=3) + scale_fill_manual(name= "Response", values = c("Maybe" = "Light Blue", "Yes" = "Darksalmon", "No" = "Yellow"))+ggtitle("Distribution of responses in women")
+pwomen
+
+#Men
+df2men <- mental_health_1 %>%
+  filter(What.is.your.gender.=="male")%>%
+  group_by(Do.you.currently.have.a.mental.health.disorder.) %>%
+  summarise(count1 = n())
+df2men$ymax=cumsum(df2men$count1/100)
+df2men$ymin=c(0,head(df2men$ymax,n=-1))
+df2men$labelPosition <- (df2men$ymax + df2men$ymin) / 2
+pmen<-ggplot(df2men, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Do.you.currently.have.a.mental.health.disorder.)) +
+     geom_rect() +
+     coord_polar(theta="y") + 
+     xlim(c(2, 4))    +
+  theme_void() + 
+  geom_label( x=3.5, aes(y=labelPosition, label=count1), size=3) + scale_fill_manual(name = "Response", values = c("Maybe" = "Light Blue", "Yes" = "Darksalmon", "No" = "Yellow"))+ggtitle("Distribution of responses in men")
+pmen 
+
+# Column that containing the gender information is aggregated to find the distribution of people overall (donut-chart-1), and later coupled with mental health responses to find the distribution (donut-chart-2&3)
+
+```
+
+#Q3 - Is mental illness dependent on the designation of the employee?
+
+
+```{r}
+library(readr)
+
+a <- mental_health_1 %>% 
+  group_by(Which.of.the.following.best.describes.your.work.position.) %>% 
+  summarise(c=n()) %>% 
+  arrange(desc(c)) # Overall designation distribution from the dataset
+
+Developer <- 0
+Developer_Team_lead <- 0
+Team_lead <- 0
+SysAdmin <- 0
+Support <- 0
+Designer<- 0
+
+for (i in 1:nrow(mental_health_1))
+  if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Developer") == TRUE) {
+    Developer <- Developer + 1
+    if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Team Lead|Supervisor") == TRUE) {
+      Developer_Team_lead <- Developer_Team_lead + 1
+    }
+  } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Team Lead|Supervisor") == TRUE) {
+    Team_lead <- Team_lead + 1
+  } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"SysAdmin") == TRUE) {
+    SysAdmin <- SysAdmin + 1
+  } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Support") == TRUE) {
+    Support <- Support + 1
+  } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Designer") == TRUE) {
+    Designer <- Designer + 1
+  }
+
+occup_t <- data.frame(Designation = c("Developer","Developer_Team_lead","Team_lead","SysAdmin","Support","Designer"), 
+  Total_count = c(Developer,Developer_Team_lead,Team_lead,SysAdmin,Support,Designer))
+
+# The above for loop computes the total number of people from above designations that took part in the survey
+
+# People that work under the below work designations are considered from the dataset
+
+Developer <- 0
+Developer_Team_lead <- 0
+Team_lead <- 0
+SysAdmin <- 0
+Support <- 0
+Designer<- 0
+
+for (i in 1:nrow(mental_health_1))
+  if (mental_health_1$Do.you.currently.have.a.mental.health.disorder.[i] == "Yes") {
+  if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Developer") == TRUE) {
+    Developer <- Developer + 1
+    if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Team Lead|Supervisor") == TRUE) {
+      Developer_Team_lead <- Developer_Team_lead + 1
+    }
+  } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Team Lead|Supervisor") == TRUE) {
+    Team_lead <- Team_lead + 1
+  } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"SysAdmin") == TRUE) {
+    SysAdmin <- SysAdmin + 1
+  } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Support") == TRUE) {
+    Support <- Support + 1
+  } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Designer") == TRUE) {
+    Designer <- Designer + 1
+  }
+  }
+
+
+
+occup_1 <- data.frame(Designation = c("Developer","Developer_Team_lead","Team_lead","SysAdmin","Support","Designer"), 
+                      Yes = c(Developer,Developer_Team_lead,Team_lead,SysAdmin,Support,Designer))
+
+# The above for loop computes the people from a given designation that responded 'Yes' for mental illness and stores in the occup_1 dataframe
+
+Developer <- 0
+Developer_Team_lead <- 0
+Team_lead <- 0
+SysAdmin <- 0
+Support <- 0
+Designer<- 0
+
+for (i in 1:nrow(mental_health_1))
+  if (mental_health_1$Do.you.currently.have.a.mental.health.disorder.[i] == "No") {
+    if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Developer") == TRUE) {
+      Developer <- Developer + 1
+      if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Team Lead|Supervisor") == TRUE) {
+        Developer_Team_lead <- Developer_Team_lead + 1
+      }
+    } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Team Lead|Supervisor") == TRUE) {
+      Team_lead <- Team_lead + 1
+    } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"SysAdmin") == TRUE) {
+      SysAdmin <- SysAdmin + 1
+    } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Support") == TRUE) {
+      Support <- Support + 1
+    } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Designer") == TRUE) {
+      Designer <- Designer + 1
+    }
+  }
+
+occup_2 <- data.frame(Designation = c("Developer","Developer_Team_lead","Team_lead","SysAdmin","Support","Designer"), 
+                      No = c(Developer,Developer_Team_lead,Team_lead,SysAdmin,Support,Designer))
+
+# The above for loop computes the people from a given designation that responded 'No' for mental illness and stores in the occup_2 dataframe
+
+Developer <- 0
+Developer_Team_lead <- 0
+Team_lead <- 0
+SysAdmin <- 0
+Support <- 0
+Designer<- 0
+
+for (i in 1:nrow(mental_health_1))
+  if (mental_health_1$Do.you.currently.have.a.mental.health.disorder.[i] == "Maybe") {
+    if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Developer") == TRUE) {
+      Developer <- Developer + 1
+      if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Team Lead|Supervisor") == TRUE) {
+        Developer_Team_lead <- Developer_Team_lead + 1
+      }
+    } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Team Lead|Supervisor") == TRUE) {
+      Team_lead <- Team_lead + 1
+    } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"SysAdmin") == TRUE) {
+      SysAdmin <- SysAdmin + 1
+    } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Support") == TRUE) {
+      Support <- Support + 1
+    } else if (str_detect(mental_health$Which.of.the.following.best.describes.your.work.position.[i],"Designer") == TRUE) {
+      Designer <- Designer + 1
+    }
+  }
+
+occup_3 <- data.frame(Designation = c("Developer","Developer_Team_lead","Team_lead","SysAdmin","Support","Designer"), 
+                      Maybe = c(Developer,Developer_Team_lead,Team_lead,SysAdmin,Support,Designer))
+
+# The above for loop computes the people from a given designation that responded 'Maybe' for mental illness and stores in the occup_3 dataframe
+
+occup_f1 <- merge(occup_t,occup_1,by = "Designation")
+occup_f2 <- merge(occup_2,occup_3,by = "Designation")
+
+occup_f <-  merge(occup_f1,occup_f2,by = "Designation")
+
+occup_f <- occup_f %>% 
+  pivot_longer(cols = Total_count:Maybe, names_to = "Response", values_to = "Count")
+
+ggplot(occup_f, aes(Designation, Count,group=Response,color = Response)) + geom_line(size=1) +
+  geom_point(size=3) + ggtitle("People who have mental illness with respect to designation" ) +labs(y="Number of people", x = "Designation")
+
+# The dataframes are merged to find the total distribution of data and later passed to a ggplot function to create a line graph to visualize the same
+
+```
+
+#Q4- Is there a relationship between age and the occurence of mental illness?
+```{r}
+library(dplyr)
+
+#Creating age group range
+mental_health_1["age_group"] = cut(mental_health_1$What.is.your.age., c(17, 24, 31, 38, 45,52,59,70), c("17-24", "25-31", "32-38","39-45","46-52", "53-59","60-70"), include.lowest=TRUE)
+
+df4 <- mental_health_1 %>%
+  filter(mental_health_1$Do.you.currently.have.a.mental.health.disorder. == "Yes") %>%
+  group_by(age_group) %>%
+  summarise(Number_of_responses = n())
+
+
+# barplot for age group 
+p<-ggplot(data=df4, aes(x=age_group, y=Number_of_responses)) +
+  geom_bar(stat="identity",fill="steelblue" ) +
+  theme_minimal() + ggtitle("Relationship between age and mental illness")
+p
+
+# In this plot, age range is generated using cut() function, then aggregated to find the count of people that responded 'Yes' for mental illness and visualized using a bar plot. 
+
+```
+
+#Q5- What is Distribution of mental illness across different countries and different states in the United States of America?
+
+```{r}
+
+#world-map
+df5<- mental_health_1%>%
+  filter(Do.you.currently.have.a.mental.health.disorder. == "Yes")%>%
+  group_by(What.country.do.you.work.in.)%>%
+  summarise(count=n())
+df5$What.country.do.you.work.in.[df5$What.country.do.you.work.in. == "United States of America"] <- "USA"
+
+world_map <- map_data("world")
+
+p5<- ggplot(df5) +
+  geom_map(
+    dat = world_map, map = world_map, aes(map_id = region),
+    fill = "white", color = "grey", size = 0.5
+  ) +
+  geom_map(map = world_map, aes(map_id =What.country.do.you.work.in. , fill = count), size = 0.5) +
+  scale_fill_gradient(low = "light blue", high = "dark salmon", name = "Total Count") +
+  expand_limits(x = world_map$long, y = world_map$lat) + theme_classic() + ggtitle("Distribution of responses across the world")+ labs(y=" ", x = " ")+theme_void()
+p5
+
+# In this plot, a heat map(world) is produced after aggregating the data based on countries to find the count of people from each country that responded 'Yes' to mental illness 
+
+#usmap
+
+state <- levels(mental_health_1$What.US.state.or.territory.do.you.work.in.) %>% as.data.frame()
+#nlevels(mental_health_1$What.US.state.or.territory.do.you.work.in.)
+
+state_freq <- as.data.frame(table(mental_health_1$What.US.state.or.territory.do.you.work.in.))
+colnames(state_freq) <- c("state","freq")
+#as_tibble(state_freq)
+
+p6 <- plot_usmap(data = state_freq, values = "freq",color = "black") +
+  scale_fill_continuous(low = "light blue", high = "dark salmon", name = "Responders")
+p6
+
+# In the above plot, a heat map based on US states is produced after aggregating the data based on number of respondents from each state in US to find the distribution
+
+```
+
+
+
+#Theme2 - Employee awareness of mental health help and resources available in their companies.
+#Q2 - Is there a difference between mental health benefits offered in Technology based companies and non technology based companies
+
+```{r}
+mental_health_tn <- mental_health_1 %>% 
+  group_by(Tech_company,mental_health_benefits_by_employer_aspart_of_coverage) %>% 
+  summarise(Count=n()) %>% 
+  filter(Tech_company %in% c(0,1) & 
+           mental_health_benefits_by_employer_aspart_of_coverage %in% c("Yes","No"))
+mental_health_tn$Tech_company = replace(mental_health_tn$Tech_company,mental_health_tn$Tech_company == 0, "Non-Tech")
+mental_health_tn$Tech_company = replace(mental_health_tn$Tech_company,mental_health_tn$Tech_company == 1, "Tech")
+
+
+ggplot(mental_health_tn, 
+       aes(x=Tech_company,y=Count,fill=mental_health_benefits_by_employer_aspart_of_coverage)) +
+  geom_bar(stat = "identity", position=position_dodge()) +
+  geom_text(
+    aes(label = Count),
+    colour = "white", size = 4,
+    vjust = 1.5, position = position_dodge(.9)
+  ) +
+  theme(axis.title.x=element_blank()) +
+  ggtitle("Mental health benefits being offered for Tech v/s Non-Tech companies") +
+  ylab("Count of companies") +
+  scale_fill_discrete(name = "If benefits are included in coverage?")
+
+# In this block, columns that contain employment type(Tech/Non-tech) and insurance coverage of mental illness is grouped to find the count and later fed to the ggplot function to create a grouped bar-chart 
+
+
+```
+
+#Q2 - Is there a relationship between the size of the company and mental illness coverage benefits provided by the company?
+
+```{r}
+mental_health_2 <- mental_health_1 %>% 
+  filter(!company_size %in% c("25-Jun","5-Jan")) %>% 
+  droplevels()
+
+levels(mental_health_2$company_size) <- c("26-100","100-500","500-1000","More than 1000")
+
+c <- mental_health_2 %>% 
+  group_by(company_size) %>% 
+  filter(mental_health_benefits_by_employer_aspart_of_coverage == "Yes") %>% 
+  summarise(Number_of_companies_providing_coverage = n()) %>% 
+  drop_na()
+levels(c$company_size) <- c("26-100","100-500","500-1000","More than 1000")
+plot(c)
+title(main = "Size of the company v/s number of companies providing coverage for mental illnes")
+
+# In this code-block, some cleaning is performed to exclude the incorrect data about company size , then leveled and grouped to find the number of companies that provide coverage for each range and visualized using the plo() function
+```
+#Q3 - 
+```{r}
+df11 <- mental_health_1 %>%
+  filter(self_employed == "Employed in a Company") %>%
+  group_by(age_group, Do.you.feel.that.being.identified.as.a.person.with.a.mental.health.issue.would.hurt.your.career.) %>%
+  summarise( count_a = n()) %>% 
+  na.omit()
+
+
+
+ggplot(df11, aes(x= Do.you.feel.that.being.identified.as.a.person.with.a.mental.health.issue.would.hurt.your.career., y = count_a, fill = Do.you.feel.that.being.identified.as.a.person.with.a.mental.health.issue.would.hurt.your.career.)) + geom_bar(stat = "identity") + facet_wrap(~ age_group) + 
+  scale_fill_manual(name = "Response",values = c("Light blue","dark salmon", "yellow","Grey", "light green")) + 
+  ggtitle("Response to mental illness affecting career with respect to various age groups") + xlab("Response") + ylab("Number of people")
+
+# In this chunk, people who are employed in a company are filtered out ao find the people count based on the age distribution and visualized that data using bar grapgh. Facet_wrap() function is used to separate and display the bar graph for each age group.
+```
+#Theme3 - The Taboo around mental health in technical companies
+
+#Q1- On opening up about mental illness, do employees face unsupportive behaviour from other people in the workspace?
+
+
+```{r}
+df6 <- mental_health_1 %>%
+  group_by(Have.you.observed.or.experienced.an.unsupportive.or.badly.handled.response.to.a.mental.health.issue.in.your.current.or.previous.workplace.) %>%
+  summarise(total1 = n())
+
+#pie chart 
+
+lbls <- c("Maybe/Not sure", "N/A", "No", "Yes, I experienced", "Yes, I observed")
+df6 <- df6 %>% 
+  arrange(desc(lbls)) %>%
+  mutate(prop = total1 / sum(df6$total1) *100) %>%
+  mutate(ypos = cumsum(prop)- 0.5*prop )
+
+ggplot(df6, aes(x="lbls", y=total1, fill=total1)) +
+  geom_bar(stat="identity") +
+  labs(title = "People who experieced an unsupportive response to a mental issue at work")  + geom_text(aes(label = lbls),
+            position = position_stack(vjust = 0.5), size = 3) +
+  coord_polar(theta = "y")  + scale_fill_continuous(name="No. of responses", low="light yellow", high= "light blue")+
+
+theme_void()
+ 
+# In this part, a pie chart that shows the number of people that had responded to "Have.you.observed.or.experienced.an.unsupportive.or.badly.handled.response.to.a.mental.health.issue.in.your.current.or.previous.workplace." question in the survey. coor_polar is used to produce a pie chart for this data distribution
+
+
+
+```
+#Q2- Do employers take mental health as seriously as physical health?
+
+```{r}
+#comparison between bringing up a physical health issue v/s bringing up a mental health issue
+df7 <- mental_health_1 %>%
+  group_by(does_employer_take_mental_health_as_seriously_as_physical_health) %>%
+  summarise(count_p = n()) %>% na.omit()
+
+ggplot(df7, aes(fill=does_employer_take_mental_health_as_seriously_as_physical_health, y=count_p, x=does_employer_take_mental_health_as_seriously_as_physical_health)) + 
+  geom_bar(position='dodge', stat='identity') +
+  theme_minimal() + 
+  labs(x='Response', y='Number of responses', title='Is mental health taken as seriously as physical health') +
+  theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) +
+  scale_fill_manual('Response', values=c('Light Blue', 'Darksalmon', 'Yellow'))
+
+# In this chunk, people responded to "does_employer_take_mental_health_as_seriously_as_physical_health" question is considered. Data after summarizing is passed to ggplot to create a bar plot and several aesthetic functions are aapplied to improve the visualization
+
+```
+
+#Q3 - In the opinion of employees, do they feel that they would face negative consequences on discussing mental health issues with their employer?
+
+```{r}
+#reactions to menatl health v/s physical health 
+
+df8 <- mental_health_1 %>%
+  group_by(discussing_mental_disorder_with_employer_have_negetive_consequences) %>%
+  summarise(count_m = n()) %>% na.omit()
+
+ ggplot(df8, aes(x=reorder(discussing_mental_disorder_with_employer_have_negetive_consequences, count_m), y=count_m)) +
+  geom_bar(stat='identity', fill="steelblue", width = 0.5) +
+   theme_light() + geom_text(
+    aes(label = count_m),
+    colour = "white", size = 4,
+    vjust = 1.5, position = position_dodge(.9)
+  ) +
+  ggtitle("Does discussing mental disorder with your employer have negative consequences?") +
+  xlab("Response") +
+  ylab("Number of People")
+
+ # In this code chunk, responses of the people who thought discussing mentall illness would produce negative consequences are aggregated to find the count and later visualized using a bar plot
+
+```
+
+#Q4 - Do different genders, people from different designation have different opinions about sharing the mental illness with their supervisors?
+
+```{r}
+mental_health_allu <- mental_health_1 %>% 
+  select(What.is.your.gender., Do.you.work.remotely., 
+         Which.of.the.following.best.describes.your.work.position., comfortable_sharing_mental_health_disorder_with_supervisors)
+
+for (i in 1:nrow(mental_health_allu))
+  if (str_detect(mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i],"Team Lead|Supervisor") == TRUE) {
+    mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i] = "Team Lead/Supervisor" 
+  } else if (str_detect(mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i],"Developer") == TRUE) {
+    mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i] = "Developer"
+  } else if (str_detect(mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i],"SysAdmin") == TRUE) {
+    mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i] = "SysAdmin"
+  } else  {
+    mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i] = "Other"
+  }
+
+mhc<- mental_health_allu %>% 
+  group_by_all() %>% 
+  summarise(Count=n()) %>% 
+  arrange(desc(Count)) %>% 
+  drop_na() %>% 
+  rename(Designation = Which.of.the.following.best.describes.your.work.position.,
+         Work_mode = Do.you.work.remotely.,
+         Gender = What.is.your.gender.) 
+
+
+ggplot(mhc,
+       aes(y = `Count`, axis1 = `Designation`, axis2 = comfortable_sharing_mental_health_disorder_with_supervisors)) +
+  scale_x_discrete(limits = c("Designation", "Comfortable sharing?"), expand = c(.05, .05)) +
+  geom_alluvium(aes(fill = Gender)) +
+  geom_stratum() +
+  geom_text(stat = "stratum", aes(label = after_stat(stratum)),size=2.7) +
+  ggtitle("People's feelings about sharing their mental health disorder with supervisors")
+
+# In this plot, columns containing gender, Designation are represented using an alluvial chart based on their responses to sharing their mental health status with supervisors
+```
+
+#Q5 - Do different genders, people from different designation have different opinions about sharing the mental illness with their peers/co-workers?
+ 
+```{r}
+mental_health_allu <- mental_health_1 %>% 
+  select(What.is.your.gender., Do.you.work.remotely., 
+         Which.of.the.following.best.describes.your.work.position., comfortable_sharing_mental_health_disorder_with_coworkers)
+
+for (i in 1:nrow(mental_health_allu))
+  if (str_detect(mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i],"Team Lead|Supervisor") == TRUE) {
+    mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i] = "Team Lead/Supervisor" 
+  } else if (str_detect(mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i],"Developer") == TRUE) {
+    mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i] = "Developer"
+  } else if (str_detect(mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i],"SysAdmin") == TRUE) {
+    mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i] = "SysAdmin"
+  } else  {
+    mental_health_allu$Which.of.the.following.best.describes.your.work.position.[i] = "Other"
+  }
+
+mhc<- mental_health_allu %>% 
+  group_by_all() %>% 
+  summarise(Count=n()) %>% 
+  arrange(desc(Count)) %>% 
+  drop_na() %>% 
+  rename(Designation = Which.of.the.following.best.describes.your.work.position.,
+         Work_mode = Do.you.work.remotely.,
+         Gender = What.is.your.gender.) 
+
+
+ggplot(mhc,
+       aes(y = `Count`, axis1 = `Designation`, axis2 = comfortable_sharing_mental_health_disorder_with_coworkers)) +
+  scale_x_discrete(limits = c("Designation", "Comfortable Sharing?"), expand = c(.05, .05)) +
+  geom_alluvium(aes(fill = Gender)) +
+  geom_stratum() +
+  geom_text(stat = "stratum", aes(label = after_stat(stratum)),size=2.7) +
+  ggtitle("People's feelings about sharing their mental health disorder with cowerkers")
+
+# In this plot, columns containing gender, Designation are represented using an alluvial chart based on their responses to sharing their mental health status with peers/co-workers
+```
+
+
+
