@@ -1,0 +1,25 @@
+IE 6600: Computation and Visualization
+Hackathon Guidelines
+Background:
+Data scientists are taking a lead role in applying advanced analytics tools and techniques in ways that can help people in need. The data science field plays an increasingly important role in all aspects of modern life. Like people in other professions, data scientists feel a duty to contribute their skills and knowledge to serve people in their communities and around the world.
+Guidelines:
+I. The sections to be included:
+• Introduction (half page): Provide an overview of the project and the problem statement.
+• 2-3 sections: In each section, you focus on a specific topic of your choice and use data-viz to draw conclusions and interpretations. Multiple graphs can be used with each section to unveil different perspectives of your selected topic. For instance, you can select 'education' as a topic and illustrate differences in terms of countries, genders, etc. It is highly recommended to perform cross-tab analysis over different indicators (for example, education vs. economic indicators) to understand how they influence each other.
+Please make sure that the graphs embedded in your report are of appropriate size and are labelled correctly.
+• Conclusion (half page): List the main takeaways and insights. You can also briefly mention possible future extensions of your work.
+• References (optional): If you use any other databases or external resources to complete your report, please include them at the end of the report.
+• Provide your original dataset in the zipped folder as well as a link to the online recourse that your acquired it from in your .rmd file and project report.
+II. Formatting requirements:
+• The size of the visualizations in the report has to be managed accordingly based on the content.
+• Try to include 7-10 visualizations in your entire project report.
+• The report can be a maximum of 8 pages excluding the abstract and table of contents.
+III. Deliverables:
+• RMD & HTML/PDF files: Please submit your project in both .rmd and .html/.pdf files. Please only submit the knitted pdf and do not create a pdf file by copy-pasting from .rmd file.
+• Naming convention: Please name your files using the below convention:
+o 'IE6600_Sec05_Group##_Hackathon' example: "IE6600_Sec05_Group01_Hackathon.rmd" & "IE6600_Sec05_Group01_Hackathon.pdf"
+• Consent Form: After project completion, all students need to individually complete the consent form to confirm:
+o equal contribution of all team members, and
+o the originality of the work. This form can be found on the "Hackathon- Consent Form" section under the Quizzes tab.
+• Project presentation: All groups must make presentations in Microsoft PowerPoint only. Any other tools presentation tools are not allowed.
+Important Notes: • The Hackathon guidelines will be provided to you on Thursday, 7th October. • The submission deadline for Hackathon for all students is Tuesday, 12th October 11:59 pm. Late submissions will not be graded. • The presentation for groups 1-6 is scheduled for Thursday, 14th October. • One submission per group is sufficient. • Data wrangling and Visualizations have to be made using R language only. Please feel reach out to us if you have any queries. Regards, IE 6600 Team
